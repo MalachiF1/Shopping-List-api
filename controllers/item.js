@@ -2,7 +2,7 @@ const Item = require('../models/item');
 const User = require('../models/user');
 const slugify = require('slugify');
 const { errorHandler } = require('../helpers/dbErrorHandler');
-const { isBuffer } = require('lodash');
+const { isBuffer, isInteger } = require('lodash');
 const { search } = require('../routs/item');
 
 exports.create = (req, res) => {
@@ -66,6 +66,12 @@ exports.update = (req, res) => {
                 error: errorHandler(err)
             });
         }
+
+        if(!oldItem) {
+            return res.status(400).json({
+                error: 'Item not found'
+            });
+        }
     
         let slugBeforeMerge = oldItem.slug;
         oldItem.slug = slugBeforeMerge;
@@ -76,6 +82,11 @@ exports.update = (req, res) => {
         }
            
         if (amount) {
+            if(amount != Math.floor(amount) || amount < 1) {
+                return res.status(400).json({
+                    error: 'Please enter a valid amount'
+                });
+            }
             oldItem.amount = amount;
         } 
 

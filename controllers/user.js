@@ -3,6 +3,9 @@ const _ = require('lodash');
 const formidable = require('formidable');
 const fs = require('fs');
 const { errorHandler } = require('../helpers/dbErrorHandler');
+const { resetPassword } = require('./auth');
+const user = require('../models/user');
+const { settings } = require('cluster');
 
 exports.read = (req, res) => {
     req.profile.hashed_password = undefined;
@@ -96,4 +99,39 @@ exports.update = (req, res) => {
     });
 };
 
+exports.getSettings = (req, res) => {
+   const userId = req.auth._id;
+   User.findById({ _id: userId }).exec((err, user) => {
+       if (err || !user) {
+            return res.status(400).json({
+                error: 'User not found'
+            });
+       }
+       res.json(user.userSettings);
+   });
+};
 
+exports.updateSettings = (req, res) => {
+    const userId = req.auth._id;
+    const { theme } = req.body;
+    User.findById({ _id: userId }).exec((err, oldUser) => {
+        if (err || !oldUser) {
+            return res.status(400).json({
+                 error: 'User not found'
+            });
+        }
+        
+        if (theme === 'dark' || theme === 'light') {
+            oldUser.userSettings.theme = theme;
+        } 
+
+        oldUser.save((err, success) => {
+            if(err) {
+                res.status(400).json({
+                    error: errorHandler(err)
+                });
+            }
+            res.json(oldUser.userSettings);
+        });
+    });
+};

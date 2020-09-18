@@ -44,9 +44,14 @@ const userSchema = new mongoose.Schema({
         data: Buffer,
         contentType: String
     },
+    userSettings: {
+        theme: {
+            type: String,
+            default: 'dark'
+        }
+    },
     resetPasswordLink: {
         data: String,
-        default: ''
     }
 }, 
 { timestamps: true }
