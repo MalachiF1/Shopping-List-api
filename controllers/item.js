@@ -86,8 +86,21 @@ exports.update = (req, res) => {
 		oldItem.slug = slugBeforeMerge;
 
 		const { name, amount, urgent, note } = req.body;
+
 		if (name) {
 			oldItem.name = name;
+			oldItem.slug = slugify(name).toLowerCase();
+			if (oldItem.slug === '') {
+				oldItem.slug = [...name]
+					.map(char => {
+						if (char === ' ') {
+							return '-';
+						} else {
+							return char;
+						}
+					})
+					.join('');
+			}
 		}
 
 		if (amount) {
