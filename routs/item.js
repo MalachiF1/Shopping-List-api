@@ -1,12 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { 
-    create, 
-    remove, 
-    update, 
-    list, 
-    listSearch,  
-} = require('../controllers/item');
+const { create, remove, update, list, listSearch, searchHistory } = require('../controllers/item');
 
 const { requireSignin, authMiddleware, adminMiddleware } = require('../controllers/auth');
 
@@ -14,10 +8,18 @@ const { requireSignin, authMiddleware, adminMiddleware } = require('../controlle
 const { runValidation } = require('../validators');
 const { itemCreateValidator } = require('../validators/item');
 
-router.post('/create-item', itemCreateValidator, runValidation, requireSignin, authMiddleware, create);
+router.post(
+	'/create-item',
+	itemCreateValidator,
+	runValidation,
+	requireSignin,
+	authMiddleware,
+	create
+);
 router.delete('/delete-item', requireSignin, authMiddleware, remove);
 router.put('/update-item', requireSignin, authMiddleware, update);
 router.get('/list', requireSignin, authMiddleware, list);
-router.get('/search', requireSignin, authMiddleware, listSearch)
+router.get('/search', requireSignin, authMiddleware, listSearch);
+router.get('/search-history', requireSignin, authMiddleware, searchHistory);
 
 module.exports = router;
