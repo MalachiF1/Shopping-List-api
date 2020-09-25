@@ -28,14 +28,15 @@ exports.create = (req, res) => {
 		}
 		postedBy = user.name;
 
-		let orederNum;
+		let orderNum;
 		Item.find({}).exec((err, items) => {
 			if (err) {
 				console.log(err);
 			}
-			if (!items) {
-				orederNum = 0;
+			if (items.length === 0) {
+				orderNum = 0;
 			} else {
+				console.log('2 *****************************');
 				orderNum = items.sort((a, b) => b.orderNum - a.orderNum)[0].orderNum + 1; // makes it last in the list and doesn't make duplicates
 			}
 
