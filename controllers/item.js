@@ -28,16 +28,37 @@ exports.create = (req, res) => {
 		}
 		postedBy = user.name;
 
-		let item = new Item({ name, amount, urgent, note, slug, postedBy, postedById });
-
-		item.save((err, data) => {
+		let orederNum;
+		Item.find({}).exec((err, items) => {
 			if (err) {
-				return res.status(400).json({
-					error: errorHandler(err),
-				});
+				console.log(err);
 			}
-			addToHistory(data);
-			res.json(data);
+			if (!items) {
+				orederNum = 0;
+			} else {
+				orderNum = items.sort((a, b) => b.orderNum - a.orderNum)[0].orderNum + 1; // makes it last in the list and doesn't make duplicates
+			}
+
+			let item = new Item({
+				name,
+				amount,
+				urgent,
+				note,
+				slug,
+				postedBy,
+				postedById,
+				orderNum,
+			});
+
+			item.save((err, data) => {
+				if (err) {
+					return res.status(400).json({
+						error: errorHandler(err),
+					});
+				}
+				addToHistory(data);
+				res.json(data);
+			});
 		});
 	});
 };
@@ -87,7 +108,7 @@ exports.update = (req, res) => {
 		let slugBeforeMerge = oldItem.slug;
 		oldItem.slug = slugBeforeMerge;
 
-		const { name, amount, urgent, note } = req.body;
+		const { name, amount, urgent, note, orderNum } = req.body;
 
 		if (name) {
 			oldItem.name = name;
@@ -120,6 +141,10 @@ exports.update = (req, res) => {
 
 		if (note !== undefined) {
 			oldItem.note = note;
+		}
+
+		if (orderNum !== undefined) {
+			oldItem.orderNum = orderNum;
 		}
 
 		oldItem.save((err, result) => {
@@ -216,7 +241,6 @@ const UpdateHistory = (data, oldSlug) => {
 	const { name, amount, urgent, note, slug, postedById, postedBy } = data;
 
 	CachedItem.findOne({ slug: oldSlug }).exec((err, oldCachedItem) => {
-		console.log(oldCachedItem);
 		if (err || !oldCachedItem) {
 			console.log('cachedItem not found');
 		}

@@ -27,6 +27,9 @@ const cachedItemSchema = new mongoose.Schema(
 			type: String,
 			max: 40,
 		},
+		orderNum: {
+			type: Number,
+		},
 		postedById: {
 			type: ObjectId,
 			ref: 'User',
