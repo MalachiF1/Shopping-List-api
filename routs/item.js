@@ -6,18 +6,11 @@ const { requireSignin, authMiddleware, adminMiddleware } = require('../controlle
 
 // validators
 const { runValidation } = require('../validators');
-const { itemCreateValidator } = require('../validators/item');
+const { itemCreateValidator, itemUpdateValidator } = require('../validators/item');
 
-router.post(
-	'/create-item',
-	itemCreateValidator,
-	runValidation,
-	requireSignin,
-	authMiddleware,
-	create
-);
+router.post('/create-item', itemCreateValidator, runValidation, requireSignin, authMiddleware, create);
 router.delete('/delete-item', requireSignin, authMiddleware, remove);
-router.put('/update-item', requireSignin, authMiddleware, update);
+router.put('/update-item', itemUpdateValidator, runValidation, requireSignin, authMiddleware, update);
 router.get('/list', requireSignin, authMiddleware, list);
 router.get('/search', requireSignin, authMiddleware, listSearch);
 router.get('/search-history', requireSignin, authMiddleware, searchHistory);

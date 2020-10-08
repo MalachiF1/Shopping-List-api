@@ -128,11 +128,6 @@ exports.update = (req, res) => {
 		}
 
 		if (amount) {
-			if (amount != Math.floor(amount) || amount < 1) {
-				return res.status(400).json({
-					error: 'Please enter a valid amount',
-				});
-			}
 			oldItem.amount = amount;
 		}
 
@@ -166,10 +161,7 @@ exports.listSearch = (req, res) => {
 	if (search) {
 		Item.find(
 			{
-				$or: [
-					{ name: { $regex: search, $options: 'i' } },
-					{ note: { $regex: search, $options: 'i' } },
-				],
+				$or: [{ name: { $regex: search, $options: 'i' } }, { note: { $regex: search, $options: 'i' } }],
 			},
 			(err, items) => {
 				if (err) {
