@@ -9,7 +9,7 @@ const cachedItem = require('../models/cachedItem');
 exports.create = (req, res) => {
 	const { name, amount, urgent, note } = req.body;
 	let slug = slugify(name).toLowerCase();
-	if (slug === '') {
+	if (/[אבגדהוזחטיכלמנסעפצקרשת]/.test(name) || slug === '') {
 		slug = [...name]
 			.map(char => {
 				if (char === ' ') {
@@ -18,9 +18,17 @@ exports.create = (req, res) => {
 					return char;
 				}
 			})
+			.filter(char => (/[!@#$%^&*()_-]/.test(char) === true ? false : true))
 			.join('');
 	}
 	let postedById = req.auth._id;
+	let linkSlug = name
+		.split('')
+		.filter(char => (/[!@#$%^&*()_-]/.test(char) === true ? false : true))
+		.join('')
+		.split(/\s+/)
+		.join('+');
+	let link = `https://www.shufersal.co.il/online/he/search?text=${linkSlug}`;
 	let postedBy;
 	User.findById({ _id: postedById }).exec((err, user) => {
 		if (err || !user) {
@@ -36,7 +44,6 @@ exports.create = (req, res) => {
 			if (items.length === 0) {
 				orderNum = 0;
 			} else {
-				console.log('2 *****************************');
 				orderNum = items.sort((a, b) => b.orderNum - a.orderNum)[0].orderNum + 1; // makes it last in the list and doesn't make duplicates
 			}
 
@@ -46,6 +53,7 @@ exports.create = (req, res) => {
 				urgent,
 				note,
 				slug,
+				link,
 				postedBy,
 				postedById,
 				orderNum,
@@ -113,9 +121,9 @@ exports.update = (req, res) => {
 
 		if (name) {
 			oldItem.name = name;
-			oldItem.slug = slugify(name).toLowerCase();
-			if (oldItem.slug === '') {
-				oldItem.slug = [...name]
+			let slug = slugify(name).toLowerCase();
+			if (/[אבגדהוזחטיכלמנסעפצקרשת]/.test(name) || slug === '') {
+				slug = [...name]
 					.map(char => {
 						if (char === ' ') {
 							return '-';
@@ -123,8 +131,16 @@ exports.update = (req, res) => {
 							return char;
 						}
 					})
+					.filter(char => (/[!@#$%^&*()_-]/.test(char) === true ? false : true))
 					.join('');
 			}
+			let linkSlug = name
+				.split('')
+				.filter(char => (/[!@#$%^&*()_-]/.test(char) === true ? false : true))
+				.join('')
+				.split(/\s+/)
+				.join('+');
+			oldItem.link = `https://www.shufersal.co.il/online/he/search?text=${linkSlug}`;
 		}
 
 		if (amount) {
@@ -195,9 +211,9 @@ exports.searchHistory = (req, res) => {
 };
 
 const addToHistory = data => {
-	const { name, amount, urgent, note, slug, postedById, postedBy } = data;
+	const { name, amount, urgent, note, slug, link, postedById, postedBy } = data;
 
-	let cachedItem = new CachedItem({ name, amount, urgent, note, slug, postedBy, postedById });
+	let cachedItem = new CachedItem({ name, amount, urgent, note, slug, link, postedBy, postedById });
 
 	CachedItem.findOne({ slug }).exec((err, oldCachedItem) => {
 		if (err) {
@@ -210,6 +226,7 @@ const addToHistory = data => {
 			oldCachedItem.urgent = cachedItem.urgent;
 			oldCachedItem.note = cachedItem.note;
 			oldCachedItem.slug = cachedItem.slug;
+			oldCachedItem.slug = cachedItem.link;
 			oldCachedItem.postedById = cachedItem.postedById;
 			oldCachedItem.postedBy = cachedItem.postedBy;
 
@@ -231,11 +248,12 @@ const addToHistory = data => {
 };
 
 const UpdateHistory = (data, oldSlug) => {
-	const { name, amount, urgent, note, slug, postedById, postedBy } = data;
+	const { name, amount, urgent, note, slug, link, postedById, postedBy } = data;
 
 	CachedItem.findOne({ slug: oldSlug }).exec((err, oldCachedItem) => {
 		if (err || !oldCachedItem) {
 			console.log('cachedItem not found');
+			return;
 		}
 
 		oldCachedItem.name = name;
@@ -243,6 +261,7 @@ const UpdateHistory = (data, oldSlug) => {
 		oldCachedItem.urgent = urgent;
 		oldCachedItem.note = note;
 		oldCachedItem.slug = slug;
+		oldCachedItem.link = link;
 		oldCachedItem.postedById = postedById;
 		oldCachedItem.postedBy = postedBy;
 

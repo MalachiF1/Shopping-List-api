@@ -30,6 +30,9 @@ const cachedItemSchema = new mongoose.Schema(
 		orderNum: {
 			type: Number,
 		},
+		link: {
+			type: String,
+		},
 		postedById: {
 			type: ObjectId,
 			ref: 'User',

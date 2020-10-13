@@ -6,6 +6,6 @@ const { contactForm } = require('../controllers/form');
 const { runValidation } = require('../validators');
 const { contactFormValidator } = require('../validators/form');
 
-router.post('/contact', contactFormValidator,  runValidation, contactForm);
+router.post('/contact', contactFormValidator, runValidation, contactForm);
 
-module.exports = router; 
+module.exports = router;
