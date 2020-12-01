@@ -19,7 +19,8 @@ exports.create = (req, res) => {
 				}
 			})
 			.filter(char => (/[!@#$%^&*()_-]/.test(char) === true ? false : true))
-			.join('');
+			.join('')
+			.toLowerCase();
 	}
 	let postedById = req.auth._id;
 	let linkSlug = name
@@ -85,12 +86,16 @@ exports.list = (req, res) => {
 
 exports.remove = (req, res) => {
 	const slug = req.body.slug.toLowerCase();
+	console.log(slug);
 
 	Item.findOneAndRemove({ slug }).exec((err, data) => {
 		if (err) {
 			return res.status(400).json({
 				error: errorHandler(err),
 			});
+		}
+		if (!data) {
+			console.log('***********');
 		}
 		res.json({
 			message: 'Item deleted successfully',
