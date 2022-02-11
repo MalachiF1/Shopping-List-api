@@ -7,7 +7,7 @@ const { isBuffer, isInteger } = require('lodash');
 const cachedItem = require('../models/cachedItem');
 
 exports.create = (req, res) => {
-	const { name, amount, urgent, note } = req.body;
+	const { name, amount, urgent, note, orderNum } = req.body;
 	let slug = slugify(name).toLowerCase();
 	if (/[אבגדהוזחטיכלמנסעפצקרשת]/.test(name) || slug === '') {
 		slug = [...name]
@@ -37,17 +37,17 @@ exports.create = (req, res) => {
 		}
 		postedBy = user.name;
 
-		let orderNum;
 		Item.find({}).exec((err, items) => {
 			if (err) {
 				console.log(err);
 			}
-			if (items.length === 0) {
-				orderNum = 0;
-			} else {
-				orderNum = items.sort((a, b) => b.orderNum - a.orderNum)[0].orderNum + 1; // makes it last in the list and doesn't make duplicates
+			if (!orderNum) {
+				if (items.length === 0) {
+					orderNum = 0;
+				} else {
+					orderNum = items.sort((a, b) => b.orderNum - a.orderNum)[0].orderNum + 1; // makes it last in the list and doesn't make duplicates
+				}
 			}
-
 			let item = new Item({
 				name,
 				amount,
