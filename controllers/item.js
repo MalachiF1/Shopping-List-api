@@ -43,9 +43,9 @@ exports.create = (req, res) => {
 			}
 			if (!orderNum) {
 				if (items.length === 0) {
-					orderNum = 0;
+					let orderNum = 0;
 				} else {
-					orderNum = items.sort((a, b) => b.orderNum - a.orderNum)[0].orderNum + 1; // makes it last in the list and doesn't make duplicates
+					let orderNum = items.sort((a, b) => b.orderNum - a.orderNum)[0].orderNum + 1; // makes it last in the list and doesn't make duplicates
 				}
 			}
 			let item = new Item({
