@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 // bring routes
 const authRouts = require('./routs/auth');
@@ -15,8 +15,9 @@ const formRouts = require('./routs/form');
 
 // database connection
 mongoose
-.connect(process.env.DATABASE_LOCAL, { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true })
-.then(() => console.log('DB Connected'));
+.connect(process.env.DATABASE_LOCAL)
+.then(() => console.log('DB Connected'))
+.catch(err => console.log(`DB connection error: ${err.message}`));
 
 mongoose.connection.on('error', err => {
     console.log(`DB connection error: ${err.message}`);
